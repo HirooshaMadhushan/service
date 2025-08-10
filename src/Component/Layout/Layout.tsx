@@ -1,8 +1,12 @@
-import React from 'react';
-import Navbar from '../Navbar/Navbar/Navbar';
+import  { ReactNode } from 'react';
+import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
 
-function Layout({ children }) {
+interface LayoutProps {
+  children: ReactNode;
+}
+
+function Layout({ children }: LayoutProps) {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />

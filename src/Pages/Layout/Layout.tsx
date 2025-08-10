@@ -1,4 +1,4 @@
-import React from "react";
+
 import Navbar from "../../Component/Navbar/Navbar"; // adjust path as needed
 import Footer from "../../Component/Footer/Footer"; // adjust path as needed
 import { Outlet } from "react-router-dom";

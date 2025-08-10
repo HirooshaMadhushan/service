@@ -1,366 +1,350 @@
-import React, { useState, useEffect } from 'react';
-import './Services.css';
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  price: string;
+  duration: string;
+  features: string[];
+  icon: React.ReactElement;
+}
 
 const Services = () => {
-  const [activeTab, setActiveTab] = useState('maintenance');
-  const [activeCardIndex, setActiveCardIndex] = useState(null);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [activeCategory, setActiveCategory] = useState('maintenance');
 
-  const serviceCategories = [
+  const categories = [
     { id: 'maintenance', label: 'Maintenance', icon: '🔧' },
-    { id: 'repair', label: 'Repair', icon: '⚙️' },
-    { id: 'diagnostic', label: 'Diagnostic', icon: '🔍' },
-    { id: 'custom', label: 'Custom Services', icon: '🏎️' }
+    { id: 'repair', label: 'Repair Services', icon: '⚙️' },
+    { id: 'diagnostic', label: 'Diagnostics', icon: '🔍' },
+    { id: 'premium', label: 'Premium Care', icon: '💎' }
   ];
 
-  const servicesList = {
+  const services: Record<string, Service[]> = {
     maintenance: [
       {
+        id: 'oil-change',
         title: 'Oil Change Service',
-        description: 'Complete oil change with high-quality lubricants, oil filter replacement, and a multi-point inspection.',
+        description: 'Complete oil change with premium lubricants and multi-point inspection',
         price: 'From $39.99',
         duration: '30-45 mins',
-        icon: '🔧',
-        bgColor: '#e3f2fd'
+        features: ['Premium oil & filter', 'Fluid level check', 'Battery test', 'Tire pressure check'],
+        icon: (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.78 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+          </svg>
+        )
       },
       {
+        id: 'brake-service',
         title: 'Brake Maintenance',
-        description: 'Inspection and maintenance of brake pads, rotors, and brake fluid to ensure optimal braking performance.',
+        description: 'Comprehensive brake system inspection and maintenance',
         price: 'From $89.99',
         duration: '60-90 mins',
-        icon: '🛑',
-        bgColor: '#ffebee'
+        features: ['Brake pad inspection', 'Rotor assessment', 'Brake fluid check', 'Performance test'],
+        icon: (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+          </svg>
+        )
       },
       {
-        title: 'Filter Replacement',
-        description: 'Replacement of air, fuel, and cabin filters to improve engine performance and air quality.',
-        price: 'From $49.99',
-        duration: '30-45 mins',
-        icon: '🔄',
-        bgColor: '#f1f8e9'
-      },
-      {
+        id: 'tire-service',
         title: 'Tire Rotation & Balancing',
-        description: 'Even out tire wear and improve vehicle handling with professional tire rotation and balancing.',
-        price: 'From $29.99',
+        description: 'Professional tire service to extend tire life and improve handling',
+        price: 'From $49.99',
         duration: '45-60 mins',
-        icon: '🛞',
-        bgColor: '#ede7f6'
+        features: ['Tire rotation', 'Wheel balancing', 'Pressure adjustment', 'Tread inspection'],
+        icon: (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 0V3"></path>
+          </svg>
+        )
       }
     ],
     repair: [
       {
+        id: 'engine-repair',
         title: 'Engine Repair',
-        description: 'Comprehensive engine repair services from minor fixes to major overhauls for all vehicle makes and models.',
+        description: 'Expert engine diagnostics and repair services',
         price: 'From $149.99',
         duration: '2-8 hours',
-        icon: '⚙️',
-        bgColor: '#e8f5e9'
+        features: ['Engine diagnostics', 'Component replacement', 'Performance testing', 'Warranty included'],
+        icon: (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        )
       },
       {
+        id: 'transmission',
         title: 'Transmission Service',
-        description: 'Transmission fluid change, filter replacement, and comprehensive inspection of transmission components.',
-        price: 'From $119.99',
-        duration: '1-2 hours',
-        icon: '🔄',
-        bgColor: '#e0f7fa'
-      },
-      {
-        title: 'Exhaust System Repair',
-        description: 'Repair or replacement of mufflers, catalytic converters, and other exhaust components.',
-        price: 'From $99.99',
-        duration: '1-3 hours',
-        icon: '💨',
-        bgColor: '#fce4ec'
-      },
-      {
-        title: 'Electrical System Service',
-        description: 'Diagnosis and repair of electrical issues, including battery, alternator, and starter problems.',
-        price: 'From $79.99',
-        duration: '1-4 hours',
-        icon: '⚡',
-        bgColor: '#fff8e1'
+        description: 'Complete transmission maintenance and repair',
+        price: 'From $199.99',
+        duration: '2-4 hours',
+        features: ['Fluid replacement', 'Filter change', 'System diagnostics', 'Road test'],
+        icon: (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+        )
       }
     ],
     diagnostic: [
       {
+        id: 'computer-diagnostic',
         title: 'Computer Diagnostics',
-        description: 'Advanced computer diagnostics to identify error codes and system malfunctions.',
+        description: 'Advanced computerized vehicle diagnostics',
         price: '$69.99',
         duration: '30-60 mins',
-        icon: '💻',
-        bgColor: '#e8eaf6'
+        features: ['OBD-II scan', 'Error code analysis', 'System health check', 'Detailed report'],
+        icon: (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+          </svg>
+        )
       },
       {
-        title: 'Engine Performance Check',
-        description: 'Comprehensive assessment of engine performance, fuel efficiency, and power output.',
-        price: '$89.99',
-        duration: '45-60 mins',
-        icon: '📊',
-        bgColor: '#f3e5f5'
-      },
-      {
+        id: 'pre-purchase',
         title: 'Pre-Purchase Inspection',
-        description: 'Detailed inspection of vehicles prior to purchase to identify potential issues and maintenance needs.',
+        description: 'Comprehensive vehicle inspection before purchase',
         price: '$129.99',
         duration: '60-90 mins',
-        icon: '🔍',
-        bgColor: '#efebe9'
-      },
-      {
-        title: 'Emissions Testing',
-        description: 'State-certified emissions testing to ensure your vehicle meets environmental standards.',
-        price: '$49.99',
-        duration: '30 mins',
-        icon: '🌿',
-        bgColor: '#e0f2f1'
+        features: ['Complete inspection', 'Detailed report', 'Problem identification', 'Value assessment'],
+        icon: (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        )
       }
     ],
-    custom: [
+    premium: [
       {
-        title: 'Fleet Services',
-        description: 'Specialized maintenance programs for business fleets with priority scheduling and volume discounts.',
-        price: 'Custom Quote',
-        duration: 'Varies',
-        icon: '🚐',
-        bgColor: '#e3f2fd'
+        id: 'detailing',
+        title: 'Premium Detailing',
+        description: 'Professional interior and exterior detailing service',
+        price: 'From $199.99',
+        duration: '3-5 hours',
+        features: ['Paint correction', 'Interior deep clean', 'Protection coating', 'Premium products'],
+        icon: (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+          </svg>
+        )
       },
       {
-        title: 'Performance Upgrades',
-        description: 'Professional installation of performance parts and tuning to enhance vehicle capabilities.',
-        price: 'Custom Quote',
-        duration: 'Varies',
-        icon: '🏎️',
-        bgColor: '#f1f8e9'
-      },
-      {
-        title: 'Restoration Services',
-        description: 'Expert restoration of classic and vintage vehicles to original or custom specifications.',
-        price: 'Custom Quote',
-        duration: 'Project Based',
-        icon: '🔧',
-        bgColor: '#fffde7'
-      },
-      {
-        title: 'Mobile Service',
-        description: 'On-site maintenance and repair services at your home or workplace for convenient vehicle care.',
+        id: 'concierge',
+        title: 'Concierge Service',
+        description: 'Premium pickup and delivery service',
         price: 'From $99.99',
-        duration: 'By Appointment',
-        icon: '🚗',
-        bgColor: '#e8eaf6'
+        duration: 'By appointment',
+        features: ['Vehicle pickup', 'Service at our facility', 'Quality inspection', 'Return delivery'],
+        icon: (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        )
       }
     ]
   };
 
-  // Reset active card when changing tabs
-  useEffect(() => {
-    setActiveCardIndex(null);
-  }, [activeTab]);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 0.6,
-        when: "beforeChildren",
-        staggerChildren: 0.1
-      }
-    }
+  const handleServiceSelect = (service: Service) => {
+    setSelectedService(service);
   };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.4 }
-    }
-  };
-
-  const benefits = [
-    {
-      title: 'Certified Technicians',
-      description: 'Our ASE-certified technicians have years of experience working with all vehicle makes and models.',
-      icon: '👨‍🔧',
-      color: '#3498db'
-    },
-    {
-      title: 'Warranty Protection',
-      description: 'All repairs and parts come with a comprehensive warranty for your peace of mind.',
-      icon: '🛡️',
-      color: '#2ecc71'
-    },
-    {
-      title: 'Transparent Pricing',
-      description: 'No hidden fees or surprises. We provide detailed estimates before beginning any work.',
-      icon: '💰',
-      color: '#f39c12'
-    },
-    {
-      title: 'Convenient Scheduling',
-      description: 'Online booking, flexible appointments, and loaner vehicles available for longer repairs.',
-      icon: '📅',
-      color: '#9b59b6'
-    }
-  ];
-
-  const handleCardClick = (index) => {
-    setActiveCardIndex(activeCardIndex === index ? null : index);
+  const handleBookService = () => {
+    console.log('Booking service:', selectedService?.title);
+    // Add booking logic here
   };
 
   return (
-    <div className=" services-container">
-      
-        
-      <div className="section-divider ">
-        
-        <div className="divider-content">
-          <span className="divider-icon">⚙️</span>
-          <h2>Our Services</h2>
-          <span className="divider-icon">🔧</span>
-        </div>
-      </div>
+    <div className="flex min-h-screen bg-white">
+      {/* Left Side - Services List */}
+      <div className="flex flex-col w-full px-4 bg-white sm:px-6 lg:px-10 md:w-1/2">
+        <div className="w-full max-w-md mx-auto">
+          {/* Logo */}
+          <div className="flex items-center mt-8 mb-8 space-x-3">
+            <div className="bg-gradient-to-br from-pink-500 via-pink-400 to-pink-600 p-2.5 rounded-xl shadow-lg">
+              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11C5.84 5 5.28 5.42 5.08 6.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
+              </svg>
+            </div>
+            <span className="text-xl font-bold text-gray-900">
+              Auto
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-pink-600">
+                Services
+              </span>
+            </span>
+          </div>
 
-      <div className="services-intro">
-        <div className="intro-content ">
-          <p>
-            Our service center is equipped with state-of-the-art diagnostic tools and staffed by experienced technicians
-            who are passionate about providing the highest quality automotive service. Whether you need routine
-            maintenance or complex repairs, we're here to keep your vehicle running at its best.
+          {/* Title */}
+          <h2 className="mb-2 text-2xl font-bold text-gray-900 sm:text-3xl">
+            Our Services
+          </h2>
+          <p className="mb-6 text-sm text-gray-600">
+            Professional automotive services with certified technicians
           </p>
-        </div>
-      </div>
 
-      <div className="services-category-tabs">
-        {serviceCategories.map((category) => (
-          <button
-            key={category.id}
-            className={`category-tab ${activeTab === category.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(category.id)}
-          >
-            <span className="tab-icon">{category.icon}</span>
-            {category.label}
-          </button>
-        ))}
-      </div>
+          {/* Category Tabs */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setActiveCategory(category.id)}
+                className={`px-4 py-2 text-xs font-medium rounded-full transition-all duration-200 ${
+                  activeCategory === category.id
+                    ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <span className="mr-1">{category.icon}</span>
+                {category.label}
+              </button>
+            ))}
+          </div>
 
-      <motion.div 
-        className="services-gallery"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        key={activeTab}
-      >
-        {servicesList[activeTab].map((service, index) => (
-          <motion.div 
-            className={`service-gallery-card ${activeCardIndex === index ? 'expanded' : ''}`}
-            key={index}
-            variants={itemVariants}
-            onClick={() => handleCardClick(index)}
-            style={{ 
-              background: service.bgColor,
-              borderTop: `4px solid ${
-                index === 0 ? '#3498db' : 
-                index === 1 ? '#e74c3c' : 
-                index === 2 ? '#2ecc71' : 
-                '#f39c12'
-              }`
-            }}
-          >
-            <div className="gallery-card-header">
-              <div className="service-icon-container">
-                <span className="service-gallery-icon">{service.icon}</span>
-              </div>
-              <h3>{service.title}</h3>
-            </div>
-            
-            <div className="gallery-card-content">
-              <p className="service-gallery-description">{service.description}</p>
-              <div className="service-gallery-details">
-                <div className="detail-item">
-                  <span className="detail-icon">💲</span>
-                  <span className="detail-text">{service.price}</span>
+          {/* Services List */}
+          <div className="space-y-3 overflow-y-auto max-h-96">
+            {services[activeCategory]?.map((service) => (
+              <div
+                key={service.id}
+                onClick={() => handleServiceSelect(service)}
+                className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md ${
+                  selectedService?.id === service.id
+                    ? 'border-pink-500 bg-pink-50 shadow-md'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-start space-x-3">
+                  <div className={`p-2 rounded-lg ${
+                    selectedService?.id === service.id
+                      ? 'bg-pink-500 text-white'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {service.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-gray-900 truncate">
+                      {service.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-gray-600">
+                      {service.description}
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm font-medium text-pink-600">
+                        {service.price}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {service.duration}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="detail-item">
-                  <span className="detail-icon">⏱️</span>
-                  <span className="detail-text">{service.duration}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Service Details */}
+      <div className="relative hidden overflow-hidden md:flex md:w-1/2">
+        {/* Background Image */}
+         <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+            alt="Professional automotive service center"
+            className="object-cover w-full h-full"
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-pink-500/80 via-pink-600/70 to-pink-700/80"></div>
+        </div>
+
+        {/* Content Overlay */}
+        <div className="relative flex items-center justify-center w-full h-full p-8">
+          {selectedService ? (
+            <div className="relative w-full max-w-md p-8 border shadow-2xl bg-white/10 backdrop-blur-md rounded-2xl border-white/20">
+              <div className="flex items-center justify-center w-16 h-16 mb-6 border rounded-full bg-white/20 backdrop-blur-sm border-white/30">
+                <div className="text-white">
+                  {selectedService.icon}
                 </div>
               </div>
-              {activeCardIndex === index && (
-                <button className="book-service-btn">Book Now</button>
-              )}
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+              
+              <h3 className="mb-4 text-2xl font-bold text-white">
+                {selectedService.title}
+              </h3>
+              
+              <p className="mb-6 text-white/90">
+                {selectedService.description}
+              </p>
 
-      <div className="section-divider">
-        <div className="divider-content">
-          <span className="divider-icon">✨</span>
-          <h2>Why Choose Us</h2>
-          <span className="divider-icon">✨</span>
-        </div>
-      </div>
-
-      <div className="benefits-container">
-        <div className="benefits-grid">
-          {benefits.map((benefit, index) => (
-            <motion.div
-              className="benefit-card"
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
-              style={{ borderTop: `4px solid ${benefit.color}` }}
-            >
-              <div className="benefit-icon-container" style={{ backgroundColor: benefit.color }}>
-                <div className="benefit-icon">{benefit.icon}</div>
+              <div className="mb-6 space-y-3">
+                <div className="flex items-center justify-between text-white/90">
+                  <span className="text-sm">Price:</span>
+                  <span className="font-semibold">{selectedService.price}</span>
+                </div>
+                <div className="flex items-center justify-between text-white/90">
+                  <span className="text-sm">Duration:</span>
+                  <span className="font-semibold">{selectedService.duration}</span>
+                </div>
               </div>
-              <h3>{benefit.title}</h3>
-              <p>{benefit.description}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
 
-      <div className="testimonials-section">
-        <div className="section-divider">
-          <div className="divider-content">
-            <span className="divider-icon">⭐</span>
-            <h2>Customer Feedback</h2>
-            <span className="divider-icon">⭐</span>
-          </div>
-        </div>
-        
-        <div className="testimonials-slider">
-          <div className="testimonial-card">
-            <div className="testimonial-rating">★★★★★</div>
-            <p className="testimonial-text">"The team at this service center is absolutely exceptional. My car was running better than ever after their thorough service."</p>
-            <div className="testimonial-author">— Michael R.</div>
-          </div>
-          
-          <div className="testimonial-card">
-            <div className="testimonial-rating">★★★★★</div>
-            <p className="testimonial-text">"Transparent pricing, on-time service, and excellent work. I won't take my vehicle anywhere else."</p>
-            <div className="testimonial-author">— Sarah L.</div>
-          </div>
-          
-          <div className="testimonial-card">
-            <div className="testimonial-rating">★★★★★</div>
-            <p className="testimonial-text">"The diagnostic service saved me thousands in potential repairs by identifying the actual issue quickly."</p>
-            <div className="testimonial-author">— James T.</div>
-          </div>
-        </div>
-      </div>
+              <div className="mb-6">
+                <h4 className="mb-3 text-lg font-semibold text-white">
+                  What's Included:
+                </h4>
+                <ul className="space-y-2">
+                  {selectedService.features.map((feature, index) => (
+                    <li key={index} className="flex items-center space-x-2 text-white/90">
+                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-      <div className="cta-section">
-        <div className="cta-content">
-          <h2>Ready to Experience Premium Vehicle Care?</h2>
-          <p>Book your service appointment today and discover why we're the most trusted automotive service center in the region.</p>
-          < a href="/booking" ><button className="cta-button ">Schedule Your Service</button></a>
+              <button
+                onClick={handleBookService}
+                className="w-full py-3 font-semibold text-white transition-all duration-300 transform rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 hover:scale-105 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 hover:shadow-pink-500/25"
+              >
+                Book This Service
+              </button>
+            </div>
+          ) : (
+            <div className="relative flex flex-col items-center justify-center max-w-sm p-8 text-center border shadow-2xl bg-white/10 backdrop-blur-md rounded-2xl border-white/20">
+              <div className="flex items-center justify-center w-16 h-16 mb-6 border rounded-full bg-white/20 backdrop-blur-sm border-white/30">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h3 className="mb-4 text-2xl font-bold text-white">
+                Select a Service
+              </h3>
+              <p className="text-white/90">
+                Choose a service from the list to view detailed information, pricing, and features.
+              </p>
+            </div>
+          )}
+
+          {/* Floating Elements */}
+          <div className="absolute w-32 h-32 rounded-full bg-white/10 top-16 left-16 blur-xl animate-pulse"></div>
+          <div
+            className="absolute w-40 h-40 rounded-full bg-white/10 bottom-16 right-16 blur-xl animate-pulse"
+            style={{ animationDelay: '1s' }}
+          ></div>
+
+          {/* Geometric Shapes */}
+          <div
+            className="absolute w-16 h-16 border-2 border-white/30 top-1/4 right-1/4 rounded-xl rotate-12 animate-spin"
+            style={{ animationDuration: '20s' }}
+          ></div>
+          <div
+            className="absolute w-12 h-12 border-2 rounded-full border-white/40 bottom-1/3 left-1/3 animate-bounce"
+            style={{ animationDelay: '0.5s' }}
+          ></div>
         </div>
-        <div className="cta-pattern"></div>
       </div>
     </div>
   );
